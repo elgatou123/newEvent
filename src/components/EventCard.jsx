@@ -2,11 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Edit, Trash2, MoreVertical } from "lucide-react";
 import PropTypes from "prop-types";
-import EditEventDialog from "./EditEventDialog";
+import { connect } from "react-redux";
 import { useToast } from "../hooks/use-toast";
+import EditEventDialog from "./EditEventDialog";
+import { Actions } from "../store"; // Adjust path to your store
 import "./EventCard.css";
 
-const EventCard = ({ event, isOwner }) => {
+const EventCard = ({ 
+  event, 
+  isOwner, 
+  deleteEvent, 
+  editEvent ,
+    servicesList = []
+}) => {
   const { toast } = useToast();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -30,12 +38,21 @@ const EventCard = ({ event, isOwner }) => {
     setShowDropdown(false);
   };
 
-  const handleDelete = (e) => {
+  const handleDelete = async (e) => {
     e.preventDefault();
-    toast({
-      title: "Event Deleted",
-      description: "Your event has been successfully deleted.",
-    });
+    try {
+      await deleteEvent(id);
+      toast({
+        title: "Event Deleted",
+        description: "Your event has been successfully deleted.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete event",
+        variant: "destructive",
+      });
+    }
     setShowDeleteDialog(false);
     setShowDropdown(false);
   };
@@ -90,20 +107,14 @@ const EventCard = ({ event, isOwner }) => {
               >
                 <li
                   className="dropdown-item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(e);
-                  }}
+                  onClick={handleEdit}
                 >
                   <Edit className="dropdown-icon" />
                   Edit
                 </li>
                 <li
                   className="dropdown-item dropdown-delete"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(e);
-                  }}
+                  onClick={() => setShowDeleteDialog(true)}
                 >
                   <Trash2 className="dropdown-icon" />
                   Delete
@@ -162,11 +173,15 @@ const EventCard = ({ event, isOwner }) => {
         </div>
       )}
 
-      <EditEventDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        event={event}
-      />
+     <EditEventDialog
+  open={showEditDialog}
+  onOpenChange={setShowEditDialog}
+  event={event}
+  onSave={editEvent} // This is the Redux action
+  onDelete={() => deleteEvent(event.id)}
+  servicesList={servicesList} // Pass the servicesList prop
+
+/>
     </div>
   );
 };
@@ -183,10 +198,20 @@ EventCard.propTypes = {
     organizer_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,
   isOwner: PropTypes.bool,
+  deleteEvent: PropTypes.func.isRequired,
+  editEvent: PropTypes.func.isRequired,
+    servicesList: PropTypes.array, // Ajout de la propType
+
 };
 
 EventCard.defaultProps = {
   isOwner: false,
+  servicesList: [], // Valeur par défaut
 };
 
-export default EventCard;
+const mapDispatchToProps = {
+  deleteEvent: Actions.deleteEvent,
+  editEvent: Actions.editEvent,
+};
+
+export default connect(null, mapDispatchToProps)(EventCard);

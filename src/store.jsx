@@ -95,6 +95,32 @@ const Actions = {
       dispatch({ type: ActionTypes.EVENTS_LOAD_FAILURE, payload: message });
     }
   },
+getServices: () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: ActionTypes.SERVICES_LOAD_REQUEST });
+    
+    const { auth: { userInfo } } = getState();
+    
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo?.token}`
+      }
+    };
+
+    const { data } = await axios.get(`${API_BASE}/services`, config);
+    
+    dispatch({
+      type: ActionTypes.SERVICES_LOAD_SUCCESS,
+      payload: data
+    });
+    
+    return data;
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    dispatch({ type: ActionTypes.SERVICES_LOAD_FAILURE, payload: message });
+    throw message;
+  }
+},
 
   getEventById: (id) => async (dispatch) => {
     try {
@@ -225,6 +251,64 @@ const Actions = {
       throw message;
     }
   },
+  deleteEvent: (eventId) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: 'EVENT_DELETE_REQUEST' });
+
+    const { auth: { userInfo } } = getState();
+    
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`
+      }
+    };
+
+    await axios.delete(`${API_BASE}/events/${eventId}`, config);
+
+    dispatch({
+      type: 'EVENT_DELETE_SUCCESS',
+      payload: eventId
+    });
+
+    return true;
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    dispatch({ type: 'EVENT_DELETE_FAILURE', payload: message });
+    throw message;
+  }
+},
+// In your Actions object (store.js)
+editEvent: (eventId, eventData) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: 'EVENT_EDIT_REQUEST' });
+
+    const { auth: { userInfo } } = getState();
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`
+      }
+    };
+
+    const { data } = await axios.put(
+      `${API_BASE}/events/${eventId}`,
+      eventData,
+      config
+    );
+
+    dispatch({
+      type: 'EVENT_EDIT_SUCCESS',
+      payload: data
+    });
+
+    return data;
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    dispatch({ type: 'EVENT_EDIT_FAILURE', payload: message });
+    throw message;
+  }
+},
 
   createService: (serviceData) => async (dispatch, getState) => {
     try {
@@ -289,37 +373,37 @@ const Actions = {
     }
   },
 
-  createReservation: (reservationData) => async (dispatch, getState) => {
-    try {
-      dispatch({ type: ActionTypes.RESERVATION_CREATE_REQUEST });
+createReservation: (reservationData) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: ActionTypes.RESERVATION_CREATE_REQUEST });
 
-      const { auth: { userInfo } } = getState();
-      
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userInfo.token}`
-        }
-      };
+    const { auth: { userInfo } } = getState();
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userInfo.token}`
+      }
+    };
 
-      const { data } = await axios.post(
-        `${API_BASE}/reservations`,
-        reservationData,
-        config
-      );
+    const { data } = await axios.post(
+      `${API_BASE}/reservations`,
+      reservationData,
+      config
+    );
 
-      dispatch({
-        type: ActionTypes.RESERVATION_CREATE_SUCCESS,
-        payload: data
-      });
+    dispatch({
+      type: ActionTypes.RESERVATION_CREATE_SUCCESS,
+      payload: data.reservation
+    });
 
-      return data;
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-      dispatch({ type: ActionTypes.RESERVATION_CREATE_FAILURE, payload: message });
-      throw message;
-    }
-  },
+    return data; // Retournez toutes les données pour accéder à l'invite_link
+  } catch (error) {
+    const message = error.response?.data?.message || error.message;
+    dispatch({ type: ActionTypes.RESERVATION_CREATE_FAILURE, payload: message });
+    throw new Error(message);
+  }
+},
 
   loadInvite: (token) => async (dispatch) => {
     try {
@@ -439,10 +523,36 @@ const eventsReducer = (state = initialState.events, action) => {
       return { ...state, relatedLoading: false, relatedEvents: action.payload };
     case ActionTypes.RELATED_EVENTS_LOAD_FAILURE:
       return { ...state, relatedLoading: false, relatedError: action.payload };
+    case 'EVENT_DELETE_REQUEST':
+  return { ...state, loading: true, error: null };
+case 'EVENT_DELETE_SUCCESS':
+  return {
+    ...state,
+    loading: false,
+    data: state.data.filter(event => event.id !== action.payload),
+    error: null
+  };
+case 'EVENT_DELETE_FAILURE':
+  return { ...state, loading: false, error: action.payload };
+  case 'EVENT_EDIT_REQUEST':
+  return { ...state, loading: true, error: null };
+case 'EVENT_EDIT_SUCCESS':
+  return {
+    ...state,
+    loading: false,
+    data: state.data.map(event => 
+      event.id === action.payload.id ? action.payload : event
+    ),
+    error: null
+  };
+case 'EVENT_EDIT_FAILURE':
+  return { ...state, loading: false, error: action.payload };
+  
     default:
       return state;
   }
 };
+
 
 const servicesReducer = (state = initialState.services, action) => {
   switch (action.type) {
@@ -461,6 +571,15 @@ const servicesReducer = (state = initialState.services, action) => {
     case ActionTypes.SERVICES_LOAD_FAILURE:
     case ActionTypes.SERVICE_CREATE_FAILURE:
       return { ...state, loading: false, error: action.payload };
+      // Dans votre reducer
+case 'SET_SERVICES':
+  return {
+    ...state,
+    services: {
+      ...state.services,
+      data: action.payload
+    }
+  };
     default:
       return state;
   }

@@ -13,6 +13,7 @@ const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [eventType, setEventType] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const services = useSelector((state) => state.services?.data || []);
 
   const events = useSelector((state) => state.events?.data || []);
   const { user: reduxUser } = useSelector((state) => state.auth);
@@ -20,6 +21,7 @@ const Events = () => {
 
   useEffect(() => {
     dispatch(Actions.getEvents());
+    dispatch(Actions.getServices());
   }, [dispatch]);
 
   useEffect(() => {
@@ -89,6 +91,7 @@ const Events = () => {
       : "Try adjusting your search criteria.",
     action: user?.role === "organizer" ? "Create Event" : null
   };
+  
 
   return (
     <div className="page">
@@ -171,6 +174,8 @@ const Events = () => {
                     key={event.id || `event-${Math.random().toString(36).substr(2, 9)}`}
                     event={event}
                     isOwner={user?.role === "organizer" && user.id === event.organizer_id}
+                    servicesList={services} // Passage des services
+
                   />
                 ))}
               </div>

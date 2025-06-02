@@ -11,31 +11,46 @@ const EVENT_TYPES = [
   { value: "other", label: "Autre" },
 ];
 
-const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
+const EditEventDialog = ({ 
+  open, 
+  onOpenChange, 
+  event, 
+  onSave, 
+  onDelete,
+  servicesList = []
+}) => {
   const [formValues, setFormValues] = useState({
     title: "",
     description: "",
     type: "party",
     location: "",
     image: "",
+    available_spots: 1,
+    services: [],
   });
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (event && open) {
+      console.log('Initial event services:', event.services);
+      console.log('Available services:', servicesList);
+      
       setFormValues({
         title: event.title || "",
         description: event.description || "",
         type: event.type || "party",
         location: event.location || "",
         image: event.image || "",
+        available_spots: event.available_spots || 1,
+        services: event.services 
+          ? event.services.map(s => s.id || s._id || s) 
+          : [],
       });
       setErrors({});
     }
-  }, [event, open]);
-
-  if (!open) return null;
+  }, [event, open, servicesList]);
 
   const validate = () => {
     const errs = {};
@@ -47,6 +62,9 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
     }
     if (!formValues.location || formValues.location.length < 5) {
       errs.location = "Le lieu doit contenir au moins 5 caractères";
+    }
+    if (!formValues.available_spots || formValues.available_spots < 1) {
+      errs.available_spots = "Doit avoir au moins 1 place disponible";
     }
     if (formValues.image && formValues.image !== "") {
       try {
@@ -63,52 +81,61 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleNumberChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
+  };
+
+  const handleServiceChange = (serviceId) => {
+    setFormValues(prev => {
+      const newServices = prev.services.includes(serviceId)
+        ? prev.services.filter(id => id !== serviceId)
+        : [...prev.services, serviceId];
+      return { ...prev, services: newServices };
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
       setIsLoading(true);
-
-      // Simulate API call to update event
-      setTimeout(() => {
-        console.log("Mise à jour de l'événement:", event.id, formValues);
-        alert("Votre événement a été mis à jour avec succès !");
-        setIsLoading(false);
+      
+      try {
+        await onSave(event.id, formValues);
         onOpenChange(false);
-      }, 1000);
+      } catch (error) {
+        console.error("Error saving event:", error);
+        setErrors({ submit: error.message || "Une erreur est survenue lors de la mise à jour" });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleDelete = () => {
-    if (
-      window.confirm(
-        "Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible."
-      )
-    ) {
+  const handleDelete = async () => {
+    if (window.confirm(
+      "Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible."
+    )) {
       setIsLoading(true);
-
-      // Simulate API call to delete event
-      setTimeout(() => {
-        console.log("Suppression de l'événement:", event.id);
-        alert("Votre événement a été supprimé avec succès !");
-        setIsLoading(false);
+      try {
+        await onDelete(event.id);
         onOpenChange(false);
-        if (typeof onDelete === "function") {
-          onDelete(event.id);
-        }
-      }, 1000);
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        setErrors({ submit: error.message || "Une erreur est survenue lors de la suppression" });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
+
+  if (!open) return null;
   return (
-    <div
-      className="dialog-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="dialog-title"
-    >
+    <div className="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
       <div className="dialog-content">
         <header className="dialog-header">
           <h2 id="dialog-title" className="dialog-title">
@@ -120,6 +147,10 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
         </header>
 
         <form onSubmit={handleSubmit} className="form">
+          {errors.submit && (
+            <div className="form-error-message">{errors.submit}</div>
+          )}
+
           <div className="form-item">
             <label htmlFor="title" className="form-label">
               Titre de l'Événement
@@ -133,11 +164,11 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
               value={formValues.title}
               onChange={handleChange}
               disabled={isLoading}
+              required
             />
             {errors.title && <p className="form-error">{errors.title}</p>}
           </div>
 
-          {/* Description */}
           <div className="form-item">
             <label htmlFor="description" className="form-label">
               Description
@@ -145,21 +176,19 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
             <textarea
               id="description"
               name="description"
-              className={`form-textarea ${
-                errors.description ? "input-error" : ""
-              }`}
+              className={`form-textarea ${errors.description ? "input-error" : ""}`}
               placeholder="Décrivez votre événement..."
               rows={4}
               value={formValues.description}
               onChange={handleChange}
               disabled={isLoading}
+              required
             />
             {errors.description && (
               <p className="form-error">{errors.description}</p>
             )}
           </div>
 
-          {/* Type */}
           <div className="form-item">
             <label htmlFor="type" className="form-label">
               Type d'Événement
@@ -180,7 +209,6 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
             </select>
           </div>
 
-          {/* Location */}
           <div className="form-item">
             <label htmlFor="location" className="form-label">
               Lieu
@@ -194,13 +222,34 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
               value={formValues.location}
               onChange={handleChange}
               disabled={isLoading}
+              required
             />
             {errors.location && (
               <p className="form-error">{errors.location}</p>
             )}
           </div>
 
-          {/* Image URL */}
+          <div className="form-item">
+            <label htmlFor="available_spots" className="form-label">
+              Nombre de places disponibles
+            </label>
+            <input
+              id="available_spots"
+              name="available_spots"
+              type="number"
+              min="1"
+              className={`form-input ${errors.available_spots ? "input-error" : ""}`}
+              placeholder="Entrez le nombre de places"
+              value={formValues.available_spots}
+              onChange={handleNumberChange}
+              disabled={isLoading}
+              required
+            />
+            {errors.available_spots && (
+              <p className="form-error">{errors.available_spots}</p>
+            )}
+          </div>
+
           <div className="form-item">
             <label htmlFor="image" className="form-label">
               URL de l'Image (Optionnel)
@@ -218,7 +267,31 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
             {errors.image && <p className="form-error">{errors.image}</p>}
           </div>
 
-          {/* Buttons */}
+          <div className="form-item">
+            <label className="form-label">
+              Services
+            </label>
+            <div className="services-checkbox-group">
+              {servicesList.map(service => {
+                const serviceId = service.id || service._id;
+                return (
+                  <div key={serviceId} className="service-checkbox">
+                    <input
+                      type="checkbox"
+                      id={`service-${serviceId}`}
+                      checked={formValues.services.includes(serviceId)}
+                      onChange={() => handleServiceChange(serviceId)}
+                      disabled={isLoading}
+                    />
+                    <label htmlFor={`service-${serviceId}`}>
+                      {service.name || service.label}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="form-buttons">
             <button
               type="button"
@@ -229,21 +302,23 @@ const EditEventDialog = ({ open, onOpenChange, event, onDelete }) => {
               Annuler
             </button>
 
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={handleDelete}
-              disabled={isLoading}
-            >
-              {isLoading ? "Suppression..." : "Supprimer"}
-            </button>
+            {onDelete && (
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleDelete}
+                disabled={isLoading}
+              >
+                {isLoading ? "Suppression..." : "Supprimer"}
+              </button>
+            )}
 
             <button
               type="submit"
               className="btn btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? "Mise à jour..." : "Mettre à Jour l'Événement"}
+              {isLoading ? "Mise à jour..." : "Mettre à Jour"}
             </button>
           </div>
         </form>

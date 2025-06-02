@@ -13,31 +13,46 @@ const ReservationForm = ({ event, onClose }) => {
   const [specialNote, setSpecialNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    if (!fullName || !email || !preferredDate || !preferredTime) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires.",
-        variant: "destructive",
-      });
-      setIsSubmitting(false);
-      return;
-    }
+  if (!fullName || !email || !preferredDate || !preferredTime) {
+    toast({
+      title: "Erreur",
+      description: "Veuillez remplir tous les champs obligatoires.",
+      variant: "destructive",
+    });
+    setIsSubmitting(false);
+    return;
+  }
 
-    const inviteLink = generateInviteLink(event.id, fullName);
+  try {
+    const reservationData = {
+      event_id: event.id,
+      preferred_date: preferredDate,
+      preferred_time: preferredTime,
+      special_note: specialNote || '',
+    };
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Réservation créée",
-        description: "Votre réservation a été créée avec succès !",
-      });
-      navigate(`/reservation-success/${inviteLink}`);
-    }, 1000);
-  };
+    const result = await dispatch(Actions.createReservation(reservationData));
+    
+    toast({
+      title: "Réservation créée",
+      description: "Votre réservation a été créée avec succès !",
+    });
+    
+    navigate(`/reservation-success/${result.invite_link}`);
+  } catch (error) {
+    toast({
+      title: "Erreur",
+      description: error.message || "Échec de la création de la réservation",
+      variant: "destructive",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="reservation-form-card">

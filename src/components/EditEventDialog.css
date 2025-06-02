@@ -130,3 +130,24 @@
 .btn-primary:hover:not(:disabled) {
   background: #1d4ed8;
 }
+.services-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.service-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.service-checkbox input {
+  margin: 0;
+}
+
+.service-checkbox label {
+  margin: 0;
+  font-weight: normal;
+}
