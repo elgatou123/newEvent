@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Calendar,
   Clock,
@@ -12,13 +13,60 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { mockReservations, mockEvents, mockInvitations } from "../data/mockData";
 import { formatDate, formatTime, getStatusColor } from "../lib/utils";
 import { toast } from "../hooks/use-toast";
+import { Actions } from "../store";
 import "./MyReservations.css";
 
 const MyReservations = () => {
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("organized");
+  const [loading, setLoading] = useState(true);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const reservations = useSelector((state) => state.reservations.list || []);
+  const invitations = useSelector((state) => state.reservations.invitations || []);
+  console.log("Reservations from Redux:", reservations);
+  console.log("Invitations from Redux:", invitations);
+
+
+useEffect(() => {
+  let cancelled = false;
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      if (!user) return;
+
+      console.log("Fetching data for tab:", activeTab);
+
+      if (activeTab === "organized") {
+        console.log("Dispatching loadReservations");
+        await dispatch(Actions.loadReservations());
+      } else {
+        console.log("Dispatching loadInvitations");
+        await dispatch(Actions.loadInvitations());
+      }
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    }
+  };
+
+  fetchData();
+
+  return () => {
+    cancelled = true;
+  };
+}, [user?.id, activeTab]);
+ // avoid [userId] alone — include all real dependencies
+
 
   const copyToClipboard = (url) => {
     navigator.clipboard.writeText(url);
@@ -28,12 +76,44 @@ const MyReservations = () => {
     });
   };
 
+  if (!user) {
+    return (
+      <div className="my-reservations-container">
+        <Navbar />
+        <main className="main-content">
+          <div className="empty-message">
+            <h3>Connectez-vous pour voir vos réservations</h3>
+            <p>Vous devez être connecté pour accéder à cette page.</p>
+            <a href="/login" className="button primary-button">
+              Se connecter
+            </a>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="my-reservations-container">
+        <Navbar />
+        <main className="main-content">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Chargement de vos réservations...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="my-reservations-container">
       <Navbar />
       <main className="main-content">
         <h1 className="title">Mes Réservations</h1>
-
         <div className="tabs">
           <div className="tab-buttons">
             <button
@@ -52,32 +132,29 @@ const MyReservations = () => {
 
           {activeTab === "organized" && (
             <div className="tab-content">
-              {mockReservations.length > 0 ? (
-                mockReservations.map((reservation) => {
-                  const event = mockEvents.find((e) => e.id === reservation.eventId);
-                  if (!event) return null;
-
-                  const confirmed = reservation.guests.filter((g) => g.status === "confirmed").length;
-                  const declined = reservation.guests.filter((g) => g.status === "declined").length;
-                  const pending = reservation.guests.filter((g) => g.status === "pending").length;
+              {reservations.length > 0 ? (
+                reservations.map((reservation) => {
+                  const confirmed = reservation.guests?.filter((g) => g.status === "confirmed").length || 0;
+                  const declined = reservation.guests?.filter((g) => g.status === "declined").length || 0;
+                  const pending = reservation.guests?.filter((g) => g.status === "pending").length || 0;
 
                   return (
                     <div className="card" key={reservation.id}>
                       <div className="card-header">
                         <div className="card-header-left">
-                          <span className="event-type">{event.type}</span>
-                          <h2 className="event-title">{event.title}</h2>
+                          <span className="event-type">{reservation.event?.type}</span>
+                          <h2 className="event-title">{reservation.event?.title}</h2>
                           <p className="event-description">
-                            Réservé par {reservation.name} ({reservation.email})
+                            Réservé le {formatDate(reservation.created_at)}
                           </p>
                         </div>
                         <div className="card-header-right">
-                          <a className="button outline-button" href={`/events/${event.id}`}>
+                          <a className="button outline-button" href={`/events/${reservation.event?.id}`}>
                             Voir l'événement
                           </a>
                           <button
                             className="button outline-button"
-                            onClick={() => copyToClipboard(`${window.location.origin}/invite/${reservation.inviteLink}`)}
+                            onClick={() => copyToClipboard(`${window.location.origin}/invite/${reservation.invite_id}`)}
                           >
                             <LinkIcon className="icon" />
                             Copier le lien d'invitation
@@ -91,31 +168,28 @@ const MyReservations = () => {
                             <Calendar className="icon primary" />
                             <div>
                               <h4>Date</h4>
-                              <p>{formatDate(event.date)}</p>
+                              <p>{formatDate(reservation.event?.date)}</p>
                             </div>
                           </div>
-
                           <div className="info-item">
                             <Clock className="icon primary" />
                             <div>
                               <h4>Heure</h4>
-                              <p>{formatTime(event.time)}</p>
+                              <p>{formatTime(reservation.event?.time)}</p>
                             </div>
                           </div>
-
                           <div className="info-item">
                             <MapPin className="icon primary" />
                             <div>
                               <h4>Lieu</h4>
-                              <p className="truncate">{event.location}</p>
+                              <p className="truncate">{reservation.event?.location}</p>
                             </div>
                           </div>
-
                           <div className="info-item">
                             <User className="icon primary" />
                             <div>
                               <h4>Invités</h4>
-                              <p>{reservation.guests.length} invités</p>
+                              <p>{reservation.guests?.length || 0} invités</p>
                             </div>
                           </div>
                         </div>
@@ -141,7 +215,7 @@ const MyReservations = () => {
                           </div>
                         </div>
 
-                        {reservation.guests.length > 0 && (
+                        {reservation.guests?.length > 0 && (
                           <div className="guest-list">
                             <h3>Liste des invités</h3>
                             <table className="guest-table">
@@ -156,8 +230,8 @@ const MyReservations = () => {
                               <tbody>
                                 {reservation.guests.map((guest) => (
                                   <tr key={guest.id}>
-                                    <td>{guest.guestName}</td>
-                                    <td>{guest.guestEmail}</td>
+                                    <td>{guest.guest_name}</td>
+                                    <td>{guest.guest_email}</td>
                                     <td>
                                       <span className={`badge ${getStatusColor(guest.status)}`}>
                                         {guest.status}
@@ -167,7 +241,7 @@ const MyReservations = () => {
                                       <button
                                         className="icon-button"
                                         onClick={() =>
-                                          copyToClipboard(`${window.location.origin}/invite/${guest.inviteLink}`)
+                                          copyToClipboard(`${window.location.origin}/invite/${guest.invite_id}`)
                                         }
                                       >
                                         <Share2 className="icon" />
@@ -197,54 +271,49 @@ const MyReservations = () => {
 
           {activeTab === "invitations" && (
             <div className="tab-content invitations">
-              {mockInvitations.length > 0 ? (
-                mockInvitations.map((invitation) => {
-                  const event = mockEvents.find((e) => e.id === invitation.eventId);
-                  if (!event) return null;
+              {invitations.length > 0 ? (
+                invitations.map((invitation) => (
+                  <div className="card" key={invitation.id}>
+                    <div className="image-section">
+                      <img src={invitation.event?.image} alt={invitation.event?.title} className="event-image" />
+                      <span className={`badge status-badge ${getStatusColor(invitation.status)}`}>
+                        {invitation.status}
+                      </span>
+                    </div>
 
-                  return (
-                    <div className="card" key={invitation.id}>
-                      <div className="image-section">
-                        <img src={event.image} alt={event.title} className="event-image" />
-                        <span className={`badge status-badge ${getStatusColor(invitation.status)}`}>
-                          {invitation.status}
-                        </span>
+                    <div className="card-header">
+                      <h2 className="event-title">{invitation.event?.title}</h2>
+                      <p className="event-description">Invité par {invitation.event?.organizer_name}</p>
+                    </div>
+
+                    <div className="card-body">
+                      <div className="info-item">
+                        <Calendar className="icon" />
+                        <span>{formatDate(invitation.event?.date)}</span>
                       </div>
-
-                      <div className="card-header">
-                        <h2 className="event-title">{event.title}</h2>
-                        <p className="event-description">Invité par {event.organizerName}</p>
+                      <div className="info-item">
+                        <Clock className="icon" />
+                        <span>{formatTime(invitation.event?.time)}</span>
                       </div>
-
-                      <div className="card-body">
-                        <div className="info-item">
-                          <Calendar className="icon" />
-                          <span>{formatDate(event.date)}</span>
-                        </div>
-                        <div className="info-item">
-                          <Clock className="icon" />
-                          <span>{formatTime(event.time)}</span>
-                        </div>
-                        <div className="info-item">
-                          <MapPin className="icon" />
-                          <span className="truncate">{event.location}</span>
-                        </div>
-                      </div>
-
-                      <div className="card-footer">
-                        <a href={`/events/${event.id}`} className="button outline-button">
-                          Voir les détails
-                        </a>
-                        <a
-                          href={`/invite/${invitation.inviteLink}`}
-                          className="button primary-button"
-                        >
-                          Répondre
-                        </a>
+                      <div className="info-item">
+                        <MapPin className="icon" />
+                        <span className="truncate">{invitation.event?.location}</span>
                       </div>
                     </div>
-                  );
-                })
+
+                    <div className="card-footer">
+                      <a href={`/events/${invitation.event?.id}`} className="button outline-button">
+                        Voir les détails
+                      </a>
+                      <a
+                        href={`/invite/${invitation.invite_id}`}
+                        className="button primary-button"
+                      >
+                        {invitation.status === "pending" ? "Répondre" : "Voir invitation"}
+                      </a>
+                    </div>
+                  </div>
+                ))
               ) : (
                 <div className="empty-message">
                   <h3>Aucune invitation</h3>

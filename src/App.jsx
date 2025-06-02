@@ -11,14 +11,15 @@ import "./style.css";
 import Login from "./pages/login";
 import Signup from "./pages/Signup";
 import UserProfile from "./pages/UserProfile";
+
 const App = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/events" element={<Events />} />
       <Route path="/events/:id" element={<EventDetail />} />
-      <Route path="/reservation-success/:inviteLink" element={<ReservationSuccess />} />
-      <Route path="/invite/:inviteLink" element={<InvitePage />} />
+      <Route path="/reservation-success/:inviteId" element={<ReservationSuccess />} />
+      <Route path="/invite/:inviteId" element={<InvitePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/my-profile" element={<UserProfile />} />
