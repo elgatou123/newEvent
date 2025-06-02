@@ -14,6 +14,7 @@ const formSchema = z.object({
   location: z.string().min(5, "Le lieu doit contenir au moins 5 caractères"),
   services: z.array(z.string()).min(2, "Veuillez sélectionner au moins 2 services"),
   availableSpots: z.number().min(1, "Le nombre de places doit être d'au moins 1"),
+  image: z.string().url("Veuillez entrer une URL valide").optional().or(z.literal("")),
 });
 
 const availableServices = [
@@ -52,6 +53,7 @@ const CreateEventDialog = ({ open, onOpenChange }) => {
       location: "",
       services: [],
       availableSpots: 1,
+      image: "",
     },
   });
 
@@ -113,7 +115,8 @@ const CreateEventDialog = ({ open, onOpenChange }) => {
         location: values.location,
         available_spots: values.availableSpots,
         organizer_id: user.id,
-        services: serviceIds
+        services: serviceIds,
+        image: values.image || null,
       };
 
       console.log("Submitting event with payload:", payload);
@@ -209,6 +212,19 @@ const CreateEventDialog = ({ open, onOpenChange }) => {
                 {...form.register("location")}
               />
               <p className="form-message">{form.formState.errors.location?.message}</p>
+            </div>
+
+            {/* Image URL */}
+            <div className="form-item">
+              <label className="form-label" htmlFor="image">URL de l'image (optionnel)</label>
+              <input
+                id="image"
+                type="url"
+                className="form-input"
+                placeholder="https://exemple.com/image.jpg"
+                {...form.register("image")}
+              />
+              <p className="form-message">{form.formState.errors.image?.message}</p>
             </div>
 
             {/* Services */}
