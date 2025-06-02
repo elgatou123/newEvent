@@ -1,0 +1,21 @@
+/* Define the status color styles */
+.status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  .status-declined {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .status-pending {
+    background-color: #fcd34d;
+    color: #9a5500;
+  }
+  
+  .status-default {
+    background-color: #f3f4f6;
+    color: #1f2937;
+  }
+  

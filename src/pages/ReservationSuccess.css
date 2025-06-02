@@ -1,0 +1,142 @@
+.reservation-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .reservation-main {
+    flex-grow: 1;
+    padding: 3rem 1.5rem;
+    background-color: #f9fafb;
+  }
+  
+  .reservation-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  .reservation-card {
+    background: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .reservation-card-header {
+    text-align: center;
+    padding: 2rem 1.5rem 1rem;
+  }
+  
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    background-color: #d1fae5;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    margin: 0 auto 1rem;
+  }
+  
+  .check-icon {
+    font-size: 1.75rem;
+  }
+  
+  .reservation-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #047857;
+  }
+  
+  .reservation-description {
+    font-size: 1rem;
+    color: #4b5563;
+  }
+  
+  .reservation-content {
+    padding: 1.5rem;
+  }
+  
+  .share-text {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .invite-box {
+    display: flex;
+    align-items: center;
+    background-color: #f3f4f6;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .invite-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+  
+  .icon-button {
+    background: none;
+    border: none;
+    color: #4b5563;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .info-box {
+    background-color: #fefce8;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .info-title {
+    font-weight: 600;
+    color: #92400e;
+    margin-bottom: 0.5rem;
+  }
+  
+  .info-list {
+    font-size: 0.85rem;
+    color: #374151;
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .reservation-footer {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .share-button {
+    background-color: #7c3aed;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .outline-button {
+    text-align: center;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    color: #374151;
+    text-decoration: none;
+  }
+  

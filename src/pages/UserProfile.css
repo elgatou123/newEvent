@@ -1,0 +1,162 @@
+.profile-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.profile-content {
+  flex-grow: 1;
+  padding: 3rem 1.5rem;
+  background-color: #f9fafb;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.profile-header h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.profile-header p {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+.profile-card,
+.edit-card {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.card-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.card-header span {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.card-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  background-color: #6366f1;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+}
+
+.avatar-info {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.avatar-info h4 {
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.avatar-info p {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.card-footer {
+  margin-top: 1rem;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #fca5a5;
+  background-color: white;
+  color: #dc2626;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #fef2f2;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.save-button {
+  padding: 0.75rem;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.save-button:hover {
+  background-color: #4f46e5;
+}
+
+.loading-container {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+}

@@ -1,0 +1,114 @@
+.invitepage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.invitepage-main {
+  flex-grow: 1;
+  padding: 2.5rem 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.invitepage-invalid {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.invitepage-invalid h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.invitepage-invalid p {
+  margin-bottom: 1.5rem;
+}
+
+.invitepage-browse-btn {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.invitepage-browse-btn:hover {
+  background-color: var(--color-secondary);
+}
+
+.invitepage-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.invitepage-card-header {
+  background-color: var(--color-light);
+  text-align: center;
+  padding: 2rem;
+}
+
+.invitepage-invite-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-tertiary);
+  margin-bottom: 0.5rem;
+}
+
+.invitepage-title {
+  font-size: 1.875rem;
+  color: var(--color-tertiary);
+  margin-bottom: 0.5rem;
+}
+
+.invitepage-description {
+  color: #4b5563;
+}
+
+.invitepage-card-content {
+  padding: 1.5rem;
+}
+
+.invitepage-info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .invitepage-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.invitepage-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.invitepage-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-primary);
+}
+
+.invitepage-response {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+  text-align: center;
+}
+
+.invitepage-response h3 {
+  font-weight: 500;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.invitepage-response p {
+  color: #4b5563;
+  margin-bottom: 1rem;
+}

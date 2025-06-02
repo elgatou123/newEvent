@@ -1,0 +1,132 @@
+/* Overlay backdrop */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Dialog box */
+.dialog-content {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Header */
+.dialog-header {
+  margin-bottom: 24px;
+}
+
+.dialog-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #111827; /* dark gray */
+}
+
+.dialog-subtitle {
+  font-size: 1rem;
+  color: #6b7280; /* gray-500 */
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151; /* gray-700 */
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  border: 2px solid #d1d5db; /* gray-300 */
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  color: #111827;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #2563eb; /* blue-600 */
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+/* Error input */
+.input-error {
+  border-color: #dc2626 !important; /* red-600 */
+}
+
+.form-error {
+  color: #dc2626; /* red-600 */
+  font-size: 0.875rem;
+  margin-top: 6px;
+}
+
+/* Buttons container */
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Outline button */
+.btn-outline {
+  background: transparent;
+  color: #374151;
+  border: 2px solid #374151;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: #374151;
+  color: white;
+}
+
+/* Primary button */
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}

@@ -1,0 +1,192 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: white;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 0.5rem; /* rounded-lg */
+  padding: 1.5rem; /* p-6 */
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.2);
+  /* Tailwind shadow-lg with blue-500 tint */
+}
+
+.dialog-header {
+  margin-bottom: 1.25rem; /* mb-5 */
+}
+
+.dialog-title {
+  font-size: 1.5rem; /* text-xl */
+  font-weight: 700; /* font-bold */
+  margin-bottom: 0.5rem; /* mb-2 */
+  color: #1e40af; /* Tailwind blue-800 */
+}
+
+.dialog-description {
+  font-size: 1rem; /* text-base */
+  color: #4b5563; /* Tailwind gray-600 */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* space-y-6 */
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-weight: 600; /* font-semibold */
+  margin-bottom: 0.5rem; /* mb-2 */
+  color: #374151; /* Tailwind gray-700 */
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  font-size: 1rem;
+  border: 1px solid #d1d5db; /* Tailwind gray-300 */
+  border-radius: 0.375rem; /* rounded-md */
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #2563eb; /* Tailwind blue-600 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 6.25rem; /* min-h-[100px] */
+}
+
+.form-message {
+  color: #dc2626; /* Tailwind red-600 */
+  font-size: 0.875rem; /* text-sm */
+  margin-top: 0.25rem; /* mt-1 */
+  min-height: 1.25rem; /* min-h-5 */
+}
+
+.form-checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem; /* gap-3 */
+}
+
+.form-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* space-x-2 */
+}
+
+.form-checkbox-label {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 400; /* normal */
+  color: #374151; /* gray-700 */
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem; /* space-x-2 */
+}
+
+.btn {
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  border-radius: 0.375rem; /* rounded-md */
+  font-weight: 600; /* font-semibold */
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #2563eb; /* Tailwind blue-600 */
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #1e40af; /* Tailwind blue-800 */
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #2563eb;
+  color: #2563eb;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: #2563eb;
+  color: white;
+}
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-success {
+  background-color: #16a34a; /* Tailwind green-600 */
+  color: white;
+}
+.btn-success:hover:not(:disabled) {
+  background-color: #15803d; /* Tailwind green-700 */
+}
+.btn-success:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  background: transparent;
+  color: #374151; /* Tailwind gray-700 */
+}
+.btn-ghost:hover {
+  color: #2563eb; /* Tailwind blue-600 */
+  background-color: #eff6ff; /* Tailwind blue-100 */
+}
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-danger {
+  background-color: #dc2626; /* Tailwind red-600 */
+  color: white;
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c; /* Tailwind red-700 */
+}
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background-color: #e5e7eb; /* Tailwind gray-300 */
+  color: #374151; /* Tailwind gray-700 */
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: #d1d5db; /* Tailwind gray-400 */
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-link {
+  background: transparent;
+  color: #2563eb; /* Tailwind blue-600 */
+  text-decoration: underline;
+}
