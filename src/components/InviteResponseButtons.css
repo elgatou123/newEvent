@@ -65,3 +65,78 @@
     height: 1rem;
   }
   
+  .response-buttons-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.response-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  font-weight: 500;
+}
+
+.response-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.response-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.response-button .icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Status colors */
+.response-button.confirmed {
+  border-color: #4ade80;
+  color: #166534;
+}
+
+.response-button.declined {
+  border-color: #f87171;
+  color: #991b1b;
+}
+
+.response-button.pending {
+  border-color: #fbbf24;
+  color: #92400e;
+}
+
+/* Active state */
+.response-button.active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.status-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #3b82f6;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 9999px;
+}
+
+/* Loading state */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.response-button:disabled .icon {
+  animation: spin 1s linear infinite;
+}

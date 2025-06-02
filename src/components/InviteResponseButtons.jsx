@@ -1,57 +1,81 @@
 import { useState } from "react";
-import "./InviteResponseButtons.css";
-import { toast } from "../hooks/use-toast";
 import { Check, X, Clock } from "lucide-react";
+import "./InviteResponseButtons.css";
 
-const InviteResponseButtons = ({ inviteId, initialStatus }) => {
-  const [status, setStatus] = useState(initialStatus);
-  const [isUpdating, setIsUpdating] = useState(false);
+const InviteResponseButtons = () => {
+  const [response, setResponse] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const updateResponse = (newStatus) => {
-    if (status === newStatus) return;
+  const handleResponse = (selectedResponse) => {
+    if (response === selectedResponse) return;
     
-    setIsUpdating(true);
+    setIsSubmitting(true);
     
-    // Simulate API call to update response
+    // Simulate processing delay
     setTimeout(() => {
-      setStatus(newStatus);
-      setIsUpdating(false);
+      setResponse(selectedResponse);
+      setIsSubmitting(false);
       
-      toast({
-        title: "Response Updated",
-        description: `Your response has been updated to ${newStatus}.`,
-      });
-    }, 500);
+      // Show different alerts based on response
+      switch(selectedResponse) {
+        case "confirmed":
+          alert("Vous avez confirmé votre participation!");
+          break;
+        case "declined":
+          alert("Vous avez décliné l'invitation");
+          break;
+        case "pending":
+          alert("Vous avez mis en attente");
+          break;
+      }
+    }, 800);
   };
 
   return (
-    <div className="response-buttons-container">
-      <button
-        className={`response-button ${status === "confirmed" ? "confirmed" : "default"}`}
-        onClick={() => updateResponse("confirmed")}
-        disabled={isUpdating}
-      >
-        <Check className="icon" />
-        Confirm
-      </button>
+    <div className="invite-response-container">
+      <h3>Répondre à l'invitation</h3>
       
-      <button
-        className={`response-button ${status === "declined" ? "declined" : "default"}`}
-        onClick={() => updateResponse("declined")}
-        disabled={isUpdating}
-      >
-        <X className="icon" />
-        Decline
-      </button>
+      <div className="response-options">
+        <button
+          className={`response-btn confirm-btn ${response === "confirmed" ? "active" : ""}`}
+          onClick={() => handleResponse("confirmed")}
+          disabled={isSubmitting}
+        >
+          <Check size={18} />
+          <span>Accepter</span>
+          {isSubmitting && response === "confirmed" && <span className="loading"></span>}
+        </button>
+        
+        <button
+          className={`response-btn decline-btn ${response === "declined" ? "active" : ""}`}
+          onClick={() => handleResponse("declined")}
+          disabled={isSubmitting}
+        >
+          <X size={18} />
+          <span>Refuser</span>
+          {isSubmitting && response === "declined" && <span className="loading"></span>}
+        </button>
+        
+        <button
+          className={`response-btn maybe-btn ${response === "pending" ? "active" : ""}`}
+          onClick={() => handleResponse("pending")}
+          disabled={isSubmitting}
+        >
+          <Clock size={18} />
+          <span>Peut-être</span>
+          {isSubmitting && response === "pending" && <span className="loading"></span>}
+        </button>
+      </div>
       
-      <button
-        className={`response-button ${status === "pending" ? "pending" : "default"}`}
-        onClick={() => updateResponse("pending")}
-        disabled={isUpdating}
-      >
-        <Clock className="icon" />
-        Pending
-      </button>
+      {response && (
+        <div className="response-status">
+          Statut actuel: <span className={`status ${response}`}>
+            {response === "confirmed" && "Confirmé"}
+            {response === "declined" && "Décliné"}
+            {response === "pending" && "En attente"}
+          </span>
+        </div>
+      )}
     </div>
   );
 };

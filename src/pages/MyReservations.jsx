@@ -23,50 +23,54 @@ const MyReservations = () => {
   const [activeTab, setActiveTab] = useState("organized");
   const [loading, setLoading] = useState(true);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-
-  const reservations = useSelector((state) => state.reservations.list || []);
-  const invitations = useSelector((state) => state.reservations.invitations || []);
-  console.log("Reservations from Redux:", reservations);
-  console.log("Invitations from Redux:", invitations);
-
-
-useEffect(() => {
-  let cancelled = false;
-
-  const fetchData = async () => {
+  const getStoredUser = () => {
     try {
-      setLoading(true);
-
-      if (!user) return;
-
-      console.log("Fetching data for tab:", activeTab);
-
-      if (activeTab === "organized") {
-        console.log("Dispatching loadReservations");
-        await dispatch(Actions.loadReservations());
-      } else {
-        console.log("Dispatching loadInvitations");
-        await dispatch(Actions.loadInvitations());
-      }
-
+      const user = localStorage.getItem("user");
+      return user ? JSON.parse(user) : null;
     } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      if (!cancelled) {
-        setLoading(false);
-      }
+      console.error("Error parsing user data:", error);
+      return null;
     }
   };
 
-  fetchData();
+  const user = getStoredUser();
+  const reservations = useSelector((state) => state.reservations.data || []);
+  const invitations = useSelector((state) => state.invites.data || []);
 
-  return () => {
-    cancelled = true;
-  };
-}, [user?.id, activeTab]);
- // avoid [userId] alone — include all real dependencies
+  useEffect(() => {
+    let isMounted = true;
 
+    const fetchData = async () => {
+      try {
+        if (!user?.user?.id) return;
+
+        setLoading(true);
+
+        if (activeTab === "organized") {
+          await dispatch(Actions.loadReservations());
+        } else {
+          await dispatch(Actions.loadInvitations());
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les réservations",
+          variant: "destructive",
+        });
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.user?.id, activeTab, dispatch]);
 
   const copyToClipboard = (url) => {
     navigator.clipboard.writeText(url);
@@ -120,7 +124,7 @@ useEffect(() => {
               className={`tab-button ${activeTab === "organized" ? "active" : ""}`}
               onClick={() => setActiveTab("organized")}
             >
-              Événements que j'ai organisés
+              Événements réservés
             </button>
             <button
               className={`tab-button ${activeTab === "invitations" ? "active" : ""}`}
@@ -134,6 +138,8 @@ useEffect(() => {
             <div className="tab-content">
               {reservations.length > 0 ? (
                 reservations.map((reservation) => {
+                  if (!reservation.event) return null;
+                  
                   const confirmed = reservation.guests?.filter((g) => g.status === "confirmed").length || 0;
                   const declined = reservation.guests?.filter((g) => g.status === "declined").length || 0;
                   const pending = reservation.guests?.filter((g) => g.status === "pending").length || 0;
@@ -142,23 +148,25 @@ useEffect(() => {
                     <div className="card" key={reservation.id}>
                       <div className="card-header">
                         <div className="card-header-left">
-                          <span className="event-type">{reservation.event?.type}</span>
-                          <h2 className="event-title">{reservation.event?.title}</h2>
+                          <span className="event-type">{reservation.event.type}</span>
+                          <h2 className="event-title">{reservation.event.title}</h2>
                           <p className="event-description">
                             Réservé le {formatDate(reservation.created_at)}
                           </p>
                         </div>
                         <div className="card-header-right">
-                          <a className="button outline-button" href={`/events/${reservation.event?.id}`}>
+                          <a className="button outline-button" href={`/events/${reservation.event.id}`}>
                             Voir l'événement
                           </a>
-                          <button
-                            className="button outline-button"
-                            onClick={() => copyToClipboard(`${window.location.origin}/invite/${reservation.invite_id}`)}
-                          >
-                            <LinkIcon className="icon" />
-                            Copier le lien d'invitation
-                          </button>
+                          {reservation.invite && (
+                            <button
+                              className="button outline-button"
+                              onClick={() => copyToClipboard(`${window.location.origin}/invite/${reservation.invite.token}`)}
+                            >
+                              <LinkIcon className="icon" />
+                              Copier le lien
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -168,21 +176,21 @@ useEffect(() => {
                             <Calendar className="icon primary" />
                             <div>
                               <h4>Date</h4>
-                              <p>{formatDate(reservation.event?.date)}</p>
+                              <p>{formatDate(reservation.preferred_date)}</p>
                             </div>
                           </div>
                           <div className="info-item">
                             <Clock className="icon primary" />
                             <div>
                               <h4>Heure</h4>
-                              <p>{formatTime(reservation.event?.time)}</p>
+                              <p>{reservation.preferred_time ? formatTime(reservation.preferred_time) : "Non spécifié"}</p>
                             </div>
                           </div>
                           <div className="info-item">
                             <MapPin className="icon primary" />
                             <div>
                               <h4>Lieu</h4>
-                              <p className="truncate">{reservation.event?.location}</p>
+                              <p className="truncate">{reservation.event.location || "Non spécifié"}</p>
                             </div>
                           </div>
                           <div className="info-item">
@@ -259,8 +267,8 @@ useEffect(() => {
                 })
               ) : (
                 <div className="empty-message">
-                  <h3>Aucun événement organisé</h3>
-                  <p>Vous n'avez encore organisé aucun événement.</p>
+                  <h3>Aucune réservation</h3>
+                  <p>Vous n'avez encore réservé aucun événement.</p>
                   <a href="/events" className="button primary-button">
                     Parcourir les événements
                   </a>
@@ -293,11 +301,11 @@ useEffect(() => {
                       </div>
                       <div className="info-item">
                         <Clock className="icon" />
-                        <span>{formatTime(invitation.event?.time)}</span>
+                        <span>{invitation.event?.time ? formatTime(invitation.event.time) : "Non spécifié"}</span>
                       </div>
                       <div className="info-item">
                         <MapPin className="icon" />
-                        <span className="truncate">{invitation.event?.location}</span>
+                        <span className="truncate">{invitation.event?.location || "Non spécifié"}</span>
                       </div>
                     </div>
 

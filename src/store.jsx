@@ -387,35 +387,43 @@ const Actions = {
     });
   },
 
-  // Reservation Actions
   loadReservations: () => async (dispatch, getState) => {
-    try {
-      dispatch({ type: ActionTypes.RESERVATIONS_LOAD_REQUEST });
+  try {
+    dispatch({ type: ActionTypes.RESERVATIONS_LOAD_REQUEST });
 
-      const { auth: { userInfo } } = getState();
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`
-        }
-      };
-
-      const userId = userInfo.user.id;
-      const { data } = await axios.get(
-        `${API_BASE}/utilisateurs/${userId}/reservations`,
-        config
-      );
-
-      dispatch({
-        type: ActionTypes.RESERVATIONS_LOAD_SUCCESS,
-        payload: data
-      });
-    } catch (error) {
-      const message = error.response?.data?.message || error.message;
-      dispatch({ type: ActionTypes.RESERVATIONS_LOAD_FAILURE, payload: message });
+    const { auth: { userInfo } } = getState();
+    
+    if (!userInfo?.token) {
+      throw new Error('User not authenticated');
     }
-  },
 
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userInfo.token}`
+      }
+    };
+
+    const { data } = await axios.get(
+      `${API_BASE}/reservations/my`,
+      config
+    );
+
+    dispatch({
+      type: ActionTypes.RESERVATIONS_LOAD_SUCCESS,
+      payload: data
+    });
+
+  } catch (error) {
+    console.error("Load reservations error:", error.response?.data || error.message);
+    
+    dispatch({ 
+      type: ActionTypes.RESERVATIONS_LOAD_FAILURE, 
+      payload: error.response?.data?.message || error.message 
+    });
+
+    throw error;
+  }
+},
   createReservation: (reservationData) => async (dispatch, getState) => {
     try {
       dispatch({ type: ActionTypes.RESERVATION_CREATE_REQUEST });

@@ -11,15 +11,18 @@ export function cn(...inputs) {
     return new Date(dateString).toLocaleDateString(undefined, options);
   }
   
-  export function formatTime(timeString) {
+// utils.js
+export const formatTime = (timeString) => {
+  if (!timeString) return ""; // or "N/A" or "00:00"
+  
+  try {
     const [hours, minutes] = timeString.split(':');
-    
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
-    
-    return `${hour12}:${minutes} ${ampm}`;
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+  } catch (e) {
+    console.warn("Invalid time format:", timeString);
+    return ""; // or return the original string
   }
+};
   
   export function truncateText(text, maxLength) {
     if (text.length <= maxLength) return text;
